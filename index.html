@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The BEDMAS Cyber-Vault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#050a14',
+                            card: '#0c162d',
+                            border: '#1e2d5a',
+                            neonGreen: '#00ffcc',
+                            neonBlue: '#00bfff',
+                            neonPink: '#ff007f',
+                            neonYellow: '#ffe600',
+                            accent: '#182b54'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050a14;
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(0, 255, 204, 0.08) 0%, transparent 70%),
+                linear-gradient(rgba(12, 22, 45, 0.8) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(12, 22, 45, 0.8) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+        }
+
+        .glow-text-green {
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.6), 0 0 20px rgba(0, 255, 204, 0.3);
+        }
+        .glow-text-blue {
+            text-shadow: 0 0 10px rgba(0, 191, 255, 0.6), 0 0 20px rgba(0, 191, 255, 0.3);
+        }
+        .glow-box-green {
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.25), inset 0 0 15px rgba(0, 255, 204, 0.1);
+        }
+        .glow-box-pink {
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.25), inset 0 0 15px rgba(255, 0, 127, 0.1);
+        }
+        .cyber-btn {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: all 0.2s ease;
+        }
+        .cyber-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
+        .cyber-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Scanline Effect */
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 40;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.3; }
+        }
+        .pulse-border {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        /* Certificate styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableCertificate, #printableCertificate * {
+                visibility: visible;
+            }
+            #printableCertificate {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative overflow-x-hidden select-none">
+    <div class="scanline"></div>
+
+    <!-- Top Header / Bar -->
+    <header class="border-b border-cyber-border bg-cyber-card/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-cyber-neonGreen/10 border border-cyber-neonGreen flex items-center justify-center text-cyber-neonGreen text-xl font-orbitron font-bold glow-box-green">
+                    <i class="fa-solid fa-vault"></i>
+                </div>
+                <div>
+                    <h1 class="font-orbitron font-extrabold text-lg md:text-xl text-white tracking-wider flex items-center gap-2">
+                        BEDMAS <span class="text-cyber-neonGreen">CYBER-VAULT</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 font-code">INTEGER MATH ACCESS SECURITY SYSTEM v3.4</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex items-center space-x-4 md:space-x-6 text-sm font-code">
+                <div class="flex items-center space-x-2 bg-cyber-bg px-3 py-1.5 rounded border border-cyber-border">
+                    <i class="fa-solid fa-trophy text-cyber-neonYellow"></i>
+                    <span class="text-gray-400 hidden sm:inline">XP:</span>
+                    <span id="statXP" class="text-cyber-neonYellow font-bold font-orbitron">0</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-cyber-bg px-3 py-1.5 rounded border border-cyber-border">
+                    <i class="fa-solid fa-fire text-cyber-neonPink"></i>
+                    <span class="text-gray-400 hidden sm:inline">Streak:</span>
+                    <span id="statStreak" class="text-cyber-neonPink font-bold font-orbitron">0x</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-cyber-bg px-3 py-1.5 rounded border border-cyber-border">
+                    <i class="fa-solid fa-clock text-cyber-neonBlue"></i>
+                    <span id="statTimer" class="text-cyber-neonBlue font-bold font-orbitron">00:00</span>
+                </div>
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-2 rounded bg-cyber-card border border-cyber-border hover:border-cyber-neonGreen text-gray-300 hover:text-cyber-neonGreen transition">
+                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto w-full p-4 flex-grow flex flex-col justify-center my-4">
+        
+        <!-- LEVEL SELECT SCREEN -->
+        <section id="levelSelectScreen" class="space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl font-orbitron font-bold text-white tracking-wide">SECURITY VAULT SECTORS</h2>
+                <p class="text-gray-400 max-w-xl mx-auto">Master the Order of Operations (BEDMAS) to bypass security nodes and breach the Master Vault.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Level Cards dynamically rendered -->
+                <div id="levelCardsContainer" class="contents"></div>
+            </div>
+
+            <!-- Stats & Achievements Summary -->
+            <div class="bg-cyber-card/60 border border-cyber-border p-6 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-4 text-center font-orbitron">
+                <div>
+                    <div class="text-xs text-gray-400">TOTAL SOLVED</div>
+                    <div id="summarySolved" class="text-2xl font-bold text-cyber-neonGreen">0</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400">ACCURACY</div>
+                    <div id="summaryAccuracy" class="text-2xl font-bold text-cyber-neonBlue">100%</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400">VAULTS UNLOCKED</div>
+                    <div id="summaryUnlocked" class="text-2xl font-bold text-cyber-neonYellow">1 / 5</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400">RANK</div>
+                    <div id="summaryRank" class="text-2xl font-bold text-cyber-neonPink">RECRUIT</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAMEPLAY SCREEN -->
+        <section id="gameplayScreen" class="hidden space-y-6">
+            <!-- Top Controls & Status -->
+            <div class="flex flex-wrap justify-between items-center gap-4 bg-cyber-card p-4 rounded-xl border border-cyber-border">
+                <button onclick="showLevelSelect()" class="cyber-btn bg-cyber-accent text-white px-4 py-2 font-orbitron text-sm flex items-center gap-2 hover:bg-gray-800">
+                    <i class="fa-solid fa-arrow-left"></i> SECTOR MENU
+                </button>
+                <div class="flex items-center space-x-3">
+                    <span id="gameLevelBadge" class="px-3 py-1 rounded-full text-xs font-orbitron font-bold bg-cyber-neonGreen/20 text-cyber-neonGreen border border-cyber-neonGreen">
+                        LEVEL 1
+                    </span>
+                    <span id="gameProgressText" class="font-code text-sm text-gray-300">NODE 1 OF 5</span>
+                </div>
+                <button onclick="toggleScratchpad()" class="cyber-btn bg-cyber-border hover:bg-cyber-neonBlue/20 text-cyber-neonBlue border border-cyber-neonBlue px-4 py-2 font-orbitron text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i> SCRATCHPAD
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Question & Input Box (Main Area) -->
+                <div class="lg:col-span-8 space-y-6">
+                    <!-- Security Lock Display Panel -->
+                    <div class="bg-cyber-card border-2 border-cyber-border rounded-2xl p-6 sm:p-10 text-center relative overflow-hidden glow-box-green flex flex-col justify-center min-h-[280px]">
+                        <div class="absolute top-3 left-4 text-xs font-code text-gray-500 tracking-widest">
+                            CYBER_VAULT // NODE_EVALUATION
+                        </div>
+                        <div class="absolute top-3 right-4 flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-cyber-neonGreen animate-pulse"></span>
+                            <span class="text-xs font-code text-cyber-neonGreen">ACTIVE LOCK</span>
+                        </div>
+
+                        <!-- Mathematical Expression Display -->
+                        <div class="my-6">
+                            <div class="text-xs font-orbitron text-cyber-neonBlue mb-2 tracking-widest">EVALUATE THE INT EXPR:</div>
+                            <div id="expressionDisplay" class="text-3xl sm:text-5xl font-code font-bold tracking-wider text-white py-4 px-2 rounded bg-cyber-bg/70 border border-cyber-border inline-block max-w-full overflow-x-auto">
+                                -8 + 15
+                            </div>
+                        </div>
+
+                        <!-- User Answer Display -->
+                        <div class="flex justify-center items-center space-x-3 my-2">
+                            <div class="font-orbitron text-sm text-gray-400">KEYPAD INPUT:</div>
+                            <div id="answerDisplay" class="font-code text-3xl font-bold text-cyber-neonGreen min-w-[120px] h-12 bg-cyber-bg border-b-2 border-cyber-neonGreen flex items-center justify-center px-4">
+                                <span class="animate-pulse">_</span>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Message -->
+                        <div id="feedbackBox" class="h-8 font-orbitron text-sm font-semibold flex items-center justify-center transition-all"></div>
+                    </div>
+
+                    <!-- Digital Keypad and Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Keypad -->
+                        <div class="bg-cyber-card p-4 rounded-xl border border-cyber-border">
+                            <div class="grid grid-cols-4 gap-2">
+                                <button onclick="keypadPress('7')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">7</button>
+                                <button onclick="keypadPress('8')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">8</button>
+                                <button onclick="keypadPress('9')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">9</button>
+                                <button onclick="keypadPress('DEL')" class="cyber-btn bg-red-900/40 hover:bg-red-800 text-red-300 font-orbitron text-xs py-3 rounded border border-red-700/50">DEL</button>
+                                
+                                <button onclick="keypadPress('4')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">4</button>
+                                <button onclick="keypadPress('5')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">5</button>
+                                <button onclick="keypadPress('6')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">6</button>
+                                <button onclick="keypadPress('MINUS')" class="cyber-btn bg-cyber-accent hover:bg-cyber-border text-cyber-neonBlue font-code text-xl py-3 rounded border border-cyber-neonBlue/40">-</button>
+
+                                <button onclick="keypadPress('1')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">1</button>
+                                <button onclick="keypadPress('2')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">2</button>
+                                <button onclick="keypadPress('3')" class="cyber-btn bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">3</button>
+                                <button onclick="keypadPress('CLEAR')" class="cyber-btn bg-yellow-900/40 hover:bg-yellow-800 text-yellow-300 font-orbitron text-xs py-3 rounded border border-yellow-700/50">CLR</button>
+
+                                <button onclick="keypadPress('0')" class="cyber-btn col-span-2 bg-cyber-bg hover:bg-cyber-accent text-white font-code text-xl py-3 rounded border border-cyber-border">0</button>
+                                <button onclick="submitAnswer()" class="cyber-btn col-span-2 bg-cyber-neonGreen/20 hover:bg-cyber-neonGreen/40 text-cyber-neonGreen font-orbitron font-bold text-sm py-3 rounded border border-cyber-neonGreen glow-box-green">
+                                    EXECUTE [ENTER]
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Action Controls & Hints -->
+                        <div class="bg-cyber-card p-4 rounded-xl border border-cyber-border flex flex-col justify-between space-y-4">
+                            <div>
+                                <h3 class="font-orbitron text-sm text-cyber-neonBlue mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-lightbulb"></i> BEDMAS ASSIST PROTOCOL
+                                </h3>
+                                <p class="text-xs text-gray-400">Need help analyzing order of operations? Request step guidance (Costs 10 XP).</p>
+                            </div>
+                            <button onclick="requestHint()" class="cyber-btn w-full bg-cyber-bg hover:bg-cyber-accent text-cyber-neonYellow border border-cyber-neonYellow/50 font-orbitron text-xs py-3 rounded flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-code-branch"></i> REVEAL HINT / BREAKDOWN
+                            </button>
+                            <div id="hintBox" class="hidden p-3 bg-cyber-bg rounded border border-cyber-border text-xs font-code text-gray-300 max-h-36 overflow-y-auto">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BEDMAS Rules Cheat Sheet & Step Solver Sidebar -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-cyber-card p-5 rounded-xl border border-cyber-border space-y-4">
+                        <h3 class="font-orbitron font-bold text-white text-md border-b border-cyber-border pb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-cyber-neonGreen"></i> BEDMAS RULE REFERENCE
+                        </h3>
+                        <ul class="text-xs space-y-2 font-code">
+                            <li class="flex items-center space-x-2 p-1.5 rounded bg-cyber-bg">
+                                <span class="w-6 h-6 rounded bg-purple-900/60 text-purple-300 font-bold flex items-center justify-center border border-purple-500">B</span>
+                                <div><strong class="text-purple-300">Brackets</strong> / Parentheses</div>
+                            </li>
+                            <li class="flex items-center space-x-2 p-1.5 rounded bg-cyber-bg">
+                                <span class="w-6 h-6 rounded bg-blue-900/60 text-blue-300 font-bold flex items-center justify-center border border-blue-500">E</span>
+                                <div><strong class="text-blue-300">Exponents</strong> / Powers</div>
+                            </li>
+                            <li class="flex items-center space-x-2 p-1.5 rounded bg-cyber-bg">
+                                <span class="w-6 h-6 rounded bg-emerald-900/60 text-emerald-300 font-bold flex items-center justify-center border border-emerald-500">D</span>
+                                <span class="w-6 h-6 rounded bg-emerald-900/60 text-emerald-300 font-bold flex items-center justify-center border border-emerald-500">M</span>
+                                <div><strong class="text-emerald-300">Divide & Multiply</strong> (L to R)</div>
+                            </li>
+                            <li class="flex items-center space-x-2 p-1.5 rounded bg-cyber-bg">
+                                <span class="w-6 h-6 rounded bg-amber-900/60 text-amber-300 font-bold flex items-center justify-center border border-amber-500">A</span>
+                                <span class="w-6 h-6 rounded bg-amber-900/60 text-amber-300 font-bold flex items-center justify-center border border-amber-500">S</span>
+                                <div><strong class="text-amber-300">Add & Subtract</strong> (L to R)</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Step-by-Step Breakdown Panel -->
+                    <div id="solutionBreakdownPanel" class="bg-cyber-card p-5 rounded-xl border border-cyber-border space-y-3">
+                        <h3 class="font-orbitron font-bold text-white text-sm flex items-center justify-between">
+                            <span><i class="fa-solid fa-list-check text-cyber-neonBlue mr-2"></i> STEP REDUCTION</span>
+                            <span class="text-xs text-gray-500 font-code font-normal">AUTO-ANALYZER</span>
+                        </h3>
+                        <div id="stepsList" class="space-y-2 text-xs font-code text-gray-300">
+                            <p class="text-gray-500 italic">Submit an answer or request a hint to view step-by-step evaluation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LEVEL COMPLETE / SCORECARD MODAL -->
+        <div id="levelCompleteModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-cyber-card border-2 border-cyber-neonGreen rounded-2xl p-6 sm:p-8 max-w-lg w-full text-center space-y-6 glow-box-green relative">
+                <div class="w-16 h-16 bg-cyber-neonGreen/20 border-2 border-cyber-neonGreen rounded-full flex items-center justify-center mx-auto text-cyber-neonGreen text-3xl">
+                    <i class="fa-solid fa-unlock"></i>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="font-orbitron text-2xl font-black text-white">SECTOR OVERRIDDEN</h3>
+                    <p class="text-sm text-cyber-neonGreen font-code" id="modalLevelTitle">LEVEL 1 CLEARED</p>
+                </div>
+
+                <div class="bg-cyber-bg p-4 rounded-xl border border-cyber-border grid grid-cols-3 gap-2 font-orbitron">
+                    <div>
+                        <div class="text-xs text-gray-400">XP GAINED</div>
+                        <div id="modalXPGained" class="text-lg text-cyber-neonYellow font-bold">+150</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-400">ACCURACY</div>
+                        <div id="modalAccuracy" class="text-lg text-cyber-neonBlue font-bold">100%</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-400">TIME</div>
+                        <div id="modalTime" class="text-lg text-white font-bold">01:12</div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button onclick="showLevelSelect()" class="cyber-btn flex-1 bg-cyber-accent text-white font-orbitron py-3 rounded text-sm hover:bg-gray-800">
+                        SECTOR MENU
+                    </button>
+                    <button id="nextLevelBtn" onclick="nextLevel()" class="cyber-btn flex-1 bg-cyber-neonGreen/20 border border-cyber-neonGreen text-cyber-neonGreen font-orbitron font-bold py-3 rounded text-sm hover:bg-cyber-neonGreen/40">
+                        NEXT SECTOR <i class="fa-solid fa-forward ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATE OF COMPLETION MODAL -->
+        <div id="certificateModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+            <div class="bg-cyber-card border-2 border-cyber-neonYellow rounded-2xl p-6 sm:p-10 max-w-3xl w-full text-center space-y-6 glow-box-pink relative">
+                <!-- Certificate Content Area for printing/viewing -->
+                <div id="printableCertificate" class="border-4 border-double border-cyber-neonYellow p-8 rounded-xl bg-cyber-bg text-white relative overflow-hidden">
+                    <div class="absolute -right-16 -bottom-16 w-48 h-48 bg-cyber-neonPink/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute -left-16 -top-16 w-48 h-48 bg-cyber-neonGreen/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div class="font-orbitron text-xs tracking-widest text-cyber-neonYellow mb-2">CYBER-VAULT SECURITY COMMAND</div>
+                    <h2 class="font-orbitron text-3xl sm:text-4xl font-extrabold text-white mb-2">CERTIFICATE OF BEDMAS MASTERY</h2>
+                    <p class="text-sm font-code text-gray-300 mb-6">THIS OFFICIALLY CERTIFIES THAT MASTER AGENT</p>
+
+                    <div class="my-4 border-b-2 border-cyber-neonGreen inline-block px-8 py-1">
+                        <input type="text" id="agentNameInput" value="AGENT MATHEMATICIAN" class="bg-transparent text-center font-orbitron text-2xl font-bold text-cyber-neonGreen focus:outline-none w-full" />
+                    </div>
+
+                    <p class="text-sm font-rajdhani text-gray-300 max-w-xl mx-auto my-4">
+                        Has successfully overridden all 5 Security Vault Sectors, demonstrating absolute command over Integer Operations, Exponents, Brackets, and multi-step BEDMAS Order of Operations.
+                    </p>
+
+                    <div class="grid grid-cols-3 gap-4 my-6 text-center border-t border-b border-cyber-border py-4 font-code text-xs">
+                        <div>
+                            <span class="text-gray-400 block">FINAL RANK</span>
+                            <span class="text-cyber-neonPink font-bold text-sm">VAULT MASTER</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">TOTAL SCORE</span>
+                            <span id="certXP" class="text-cyber-neonYellow font-bold text-sm">0 XP</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">SYSTEM STATUS</span>
+                            <span class="text-cyber-neonGreen font-bold text-sm">100% DECRYPTED</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-end pt-4 text-left font-code text-[10px] text-gray-500">
+                        <div>ISSUE DATE: <span id="certDate">2026-10-05</span></div>
+                        <div class="text-right">SIGNATURE: <span class="font-orbitron text-cyber-neonBlue">CYBER_VAULT_AI</span></div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="window.print()" class="cyber-btn bg-cyber-neonYellow/20 border border-cyber-neonYellow text-cyber-neonYellow px-6 py-3 font-orbitron font-bold text-sm rounded">
+                        <i class="fa-solid fa-print mr-2"></i> PRINT CERTIFICATE
+                    </button>
+                    <button onclick="showLevelSelect(); hideCertificate();" class="cyber-btn bg-cyber-accent text-white px-6 py-3 font-orbitron text-sm rounded">
+                        RETURN TO MENU
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCRATCHPAD MODAL CANVAS -->
+        <div id="scratchpadModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex flex-col items-center justify-center p-4">
+            <div class="bg-cyber-card border border-cyber-neonBlue rounded-xl p-4 max-w-2xl w-full flex flex-col space-y-3">
+                <div class="flex justify-between items-center font-orbitron text-sm text-cyber-neonBlue">
+                    <span><i class="fa-solid fa-pen-nib mr-2"></i> ON-SCREEN SCRATCHPAD</span>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="clearScratchpad()" class="px-3 py-1 bg-red-900/40 text-red-300 rounded border border-red-700/50 text-xs">CLEAR</button>
+                        <button onclick="toggleScratchpad()" class="px-3 py-1 bg-cyber-accent text-white rounded text-xs">CLOSE</button>
+                    </div>
+                </div>
+                <div class="w-full h-80 bg-cyber-bg rounded border border-cyber-border overflow-hidden relative">
+                    <canvas id="scratchCanvas" class="w-full h-full cursor-crosshair"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-cyber-border bg-cyber-card/60 py-3 text-center text-xs font-code text-gray-500">
+        BEDMAS CYBER-VAULT &copy; 2026 // EDUCATIONAL INTEGER MATHEMATICS MATRIX // READY FOR GITHUB PAGES
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           AUDIO ENGINE (Web Audio API Synthesizer)
+           ========================================================================== */
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) { console.error(e); }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            if (type === 'click') playTone(800, 'sine', 0.05, 0.05);
+            else if (type === 'correct') {
+                playTone(523.25, 'triangle', 0.1, 0.1); // C5
+                setTimeout(() => playTone(659.25, 'triangle', 0.1, 0.1), 80); // E5
+                setTimeout(() => playTone(783.99, 'triangle', 0.2, 0.1), 160); // G5
+            } else if (type === 'wrong') {
+                playTone(200, 'sawtooth', 0.2, 0.15);
+                setTimeout(() => playTone(150, 'sawtooth', 0.3, 0.15), 100);
+            } else if (type === 'unlock') {
+                playTone(440, 'sine', 0.1, 0.1);
+                setTimeout(() => playTone(554.37, 'sine', 0.1, 0.1), 100);
+                setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 200);
+                setTimeout(() => playTone(880, 'sine', 0.3, 0.15), 300);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').className = soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-red-400';
+        }
+
+        /* ==========================================================================
+           GAME STATE & DATA STRUCTURES
+           ========================================================================== */
+        const LEVELS = [
+            {
+                id: 1,
+                title: "Core Operations Warm-up",
+                subtitle: "Basic 2-Term Integer Operations",
+                description: "Single-step addition, subtraction, multiplication, and division with positive & negative integers.",
+                icon: "fa-calculator",
+                color: "cyber-neonGreen"
+            },
+            {
+                id: 2,
+                title: "Exponents & 2-Step Chains",
+                subtitle: "Order of Operations without Parentheses",
+                description: "Introduces power operations and two-operation expressions (-3² + 10, -24 ÷ 6 + 9).",
+                icon: "fa-superscript",
+                color: "cyber-neonBlue"
+            },
+            {
+                id: 3,
+                title: "Single Parentheses & Mixed",
+                subtitle: "Evaluating Expressions with Brackets",
+                description: "Evaluate expressions with 1 set of brackets and mixed operators.",
+                icon: "fa-brackets-curly",
+                color: "cyber-neonYellow"
+            },
+            {
+                id: 4,
+                title: "Nested Brackets & Multi-step",
+                subtitle: "Complex BEDMAS Structure",
+                description: "Multi-layered brackets [ ], exponents, and mixed signed integer operations.",
+                icon: "fa-network-wired",
+                color: "cyber-neonPink"
+            },
+            {
+                id: 5,
+                title: "Master Vault Challenge",
+                subtitle: "Advanced Multi-term Integer BEDMAS",
+                description: "Complex challenges with negative bases, powers, nested terms, and full BEDMAS mastery.",
+                icon: "fa-vault",
+                color: "cyber-neonGreen"
+            }
+        ];
+
+        let state = {
+            xp: 0,
+            streak: 0,
+            currentLevel: 1,
+            currentNode: 1,
+            totalNodes: 5,
+            unlockedLevel: 1,
+            totalSolved: 0,
+            totalAttempts: 0,
+            timerSeconds: 0,
+            timerInterval: null,
+            currentInput: "",
+            currentProblem: null
+        };
+
+        /* ==========================================================================
+           QUESTION GENERATION ENGINE
+           ========================================================================== */
+        function randInt(min, max, excludeZero = true) {
+            let res = 0;
+            while (res === 0 && excludeZero) {
+                res = Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            return res;
+        }
+
+        function generateProblem(level) {
+            let expr = "";
+            let answer = 0;
+            let steps = [];
+
+            if (level === 1) {
+                // Core Operations (1 step)
+                const op = ['+', '-', '*', '/'][Math.floor(Math.random() * 4)];
+                let a = randInt(-15, 15);
+                let b = randInt(-15, 15);
+
+                if (op === '+') {
+                    expr = `${a} + ${b < 0 ? `(${b})` : b}`;
+                    answer = a + b;
+                } else if (op === '-') {
+                    expr = `${a} - ${b < 0 ? `(${b})` : b}`;
+                    answer = a - b;
+                } else if (op === '*') {
+                    expr = `${a} × ${b < 0 ? `(${b})` : b}`;
+                    answer = a * b;
+                } else {
+                    // Integer exact division
+                    b = randInt(-10, 10);
+                    answer = randInt(-10, 10);
+                    a = b * answer;
+                    expr = `${a} ÷ ${b < 0 ? `(${b})` : b}`;
+                }
+                steps.push(`Evaluate direct operation: ${a} ${op === '*' ? '×' : op === '/' ? '÷' : op} ${b} = ${answer}`);
+            } 
+            else if (level === 2) {
+                // 2-step expressions & Exponents (No Parentheses)
+                const type = randInt(1, 3, false);
+                if (type === 1) { // Exponent + Add/Sub: e.g. (-3)² + 10 or -4² + 5
+                    let base = randInt(-5, 5);
+                    let exp = 2;
+                    let add = randInt(-12, 12);
+                    let powVal = Math.pow(base, exp);
+                    expr = `(${base})² + ${add < 0 ? `(${add})` : add}`;
+                    answer = powVal + add;
+                    steps.push(`Step 1 (Exponents): (${base})² = ${powVal}`);
+                    steps.push(`Step 2 (Addition): ${powVal} + (${add}) = ${answer}`);
+                } else if (type === 2) { // Mul/Div + Add/Sub: 4 - 3 × (-5)
+                    let a = randInt(-10, 10);
+                    let b = randInt(-8, 8);
+                    let c = randInt(-8, 8);
+                    expr = `${a} - ${b < 0 ? `(${b})` : b} × ${c < 0 ? `(${c})` : c}`;
+                    let prod = b * c;
+                    answer = a - prod;
+                    steps.push(`Step 1 (Multiplication): ${b} × ${c} = ${prod}`);
+                    steps.push(`Step 2 (Subtraction): ${a} - (${prod}) = ${answer}`);
+                } else { // Division + Addition: -24 ÷ 6 + 9
+                    let c = randInt(-8, 8);
+                    let div = randInt(-6, 6);
+                    let b = div * randInt(-6, 6);
+                    let quot = b / div;
+                    answer = quot + c;
+                    expr = `${b} ÷ ${div < 0 ? `(${div})` : div} + ${c < 0 ? `(${c})` : c}`;
+                    steps.push(`Step 1 (Division): ${b} ÷ ${div} = ${quot}`);
+                    steps.push(`Step 2 (Addition): ${quot} + (${c}) = ${answer}`);
+                }
+            } 
+            else if (level === 3) {
+                // Single Parentheses & Mixed
+                const type = randInt(1, 2, false);
+                if (type === 1) { // (a - b) × c
+                    let a = randInt(-10, 10);
+                    let b = randInt(-10, 10);
+                    let c = randInt(-6, 6);
+                    let bracket = a - b;
+                    answer = bracket * c;
+                    expr = `(${a} - ${b < 0 ? `(${b})` : b}) × ${c < 0 ? `(${c})` : c}`;
+                    steps.push(`Step 1 (Brackets): (${a} - ${b}) = ${bracket}`);
+                    steps.push(`Step 2 (Multiplication): ${bracket} × ${c} = ${answer}`);
+                } else { // a × (b² - c)
+                    let a = randInt(-5, 5);
+                    let b = randInt(-4, 4);
+                    let pow = b * b;
+                    let c = randInt(-10, 10);
+                    let bracket = pow - c;
+                    answer = a * bracket;
+                    expr = `${a} × [ (${b})² - ${c < 0 ? `(${c})` : c} ]`;
+                    steps.push(`Step 1 (Inside Brackets - Exponents): (${b})² = ${pow}`);
+                    steps.push(`Step 2 (Inside Brackets - Subtraction): ${pow} - ${c} = ${bracket}`);
+                    steps.push(`Step 3 (Multiplication): ${a} × ${bracket} = ${answer}`);
+                }
+            }
+            else if (level === 4) {
+                // Nested Brackets & Multi-step BEDMAS
+                // e.g. [(-3 + 7) × -2] + 15
+                let a = randInt(-8, 8);
+                let b = randInt(-8, 8);
+                let sum = a + b;
+                let mult = randInt(-5, 5);
+                let inner = sum * mult;
+                let outerAdd = randInt(-15, 15);
+                answer = inner + outerAdd;
+
+                expr = `[ ( ${a} + ${b < 0 ? `(${b})` : b} ) × ${mult < 0 ? `(${mult})` : mult} ] + ${outerAdd < 0 ? `(${outerAdd})` : outerAdd}`;
+                steps.push(`Step 1 (Inner Parentheses): (${a} + ${b}) = ${sum}`);
+                steps.push(`Step 2 (Bracket Multiplication): [ ${sum} × ${mult} ] = ${inner}`);
+                steps.push(`Step 3 (Final Addition): ${inner} + (${outerAdd}) = ${answer}`);
+            }
+            else {
+                // Level 5: Master Vault (e.g., (-2)⁴ - [ 3 × (-4 - 2) ] ÷ 2)
+                let base = randInt(-3, 3);
+                let powVal = Math.pow(base, 4); // exponent 4
+                let x = randInt(-6, 6);
+                let y = randInt(-6, 6);
+                let sub = x - y;
+                let mult = randInt(-4, 4);
+                let brackVal = mult * sub;
+                let div = 2;
+                if (brackVal % 2 !== 0) brackVal += 1; // ensure integer division
+                let divResult = brackVal / div;
+                answer = powVal - divResult;
+
+                expr = `(${base})⁴ - [ ${mult} × (${x} - ${y < 0 ? `(${y})` : y}) ] ÷ ${div}`;
+                steps.push(`Step 1 (Exponents & Inner Brackets): (${base})⁴ = ${powVal} AND (${x} - ${y}) = ${sub}`);
+                steps.push(`Step 2 (Outer Bracket Multiplication): ${mult} × ${sub} = ${brackVal}`);
+                steps.push(`Step 3 (Division): ${brackVal} ÷ ${div} = ${divResult}`);
+                steps.push(`Step 4 (Final Subtraction): ${powVal} - ${divResult} = ${answer}`);
+            }
+
+            return { expr, answer, steps };
+        }
+
+        /* ==========================================================================
+           UI RENDERERS & EVENT HANDLERS
+           ========================================================================== */
+        function loadUserData() {
+            const saved = localStorage.getItem('bedmas_cyber_vault_save');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state.xp = parsed.xp || 0;
+                    state.unlockedLevel = parsed.unlockedLevel || 1;
+                    state.totalSolved = parsed.totalSolved || 0;
+                    state.totalAttempts = parsed.totalAttempts || 0;
+                } catch(e) {}
+            }
+            updateStatsUI();
+        }
+
+        function saveUserData() {
+            localStorage.setItem('bedmas_cyber_vault_save', JSON.stringify({
+                xp: state.xp,
+                unlockedLevel: state.unlockedLevel,
+                totalSolved: state.totalSolved,
+                totalAttempts: state.totalAttempts
+            }));
+        }
+
+        function updateStatsUI() {
+            document.getElementById('statXP').innerText = state.xp;
+            document.getElementById('statStreak').innerText = `${state.streak}x`;
+            document.getElementById('summarySolved').innerText = state.totalSolved;
+            document.getElementById('summaryUnlocked').innerText = `${state.unlockedLevel} / 5`;
+            
+            const accuracy = state.totalAttempts > 0 ? Math.round((state.totalSolved / state.totalAttempts) * 100) : 100;
+            document.getElementById('summaryAccuracy').innerText = `${accuracy}%`;
+
+            let rank = "RECRUIT";
+            if (state.xp >= 1000) rank = "VAULT MASTER";
+            else if (state.xp >= 600) rank = "CYBER OPERATIVE";
+            else if (state.xp >= 300) rank = "DECRYPTER";
+            else if (state.xp >= 100) rank = "AGENT";
+            document.getElementById('summaryRank').innerText = rank;
+        }
+
+        function renderLevelCards() {
+            const container = document.getElementById('levelCardsContainer');
+            container.innerHTML = "";
+
+            LEVELS.forEach(lvl => {
+                const isUnlocked = lvl.id <= state.unlockedLevel;
+                const card = document.createElement('div');
+                card.className = `bg-cyber-card border ${isUnlocked ? 'border-cyber-border hover:border-' + lvl.color : 'border-gray-800 opacity-60'} p-6 rounded-xl flex flex-col justify-between transition-all`;
+
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start">
+                            <span class="w-10 h-10 rounded-lg ${isUnlocked ? 'bg-cyber-bg border border-cyber-border text-cyber-neonGreen' : 'bg-gray-900 text-gray-600'} flex items-center justify-center text-lg">
+                                <i class="fa-solid ${lvl.icon}"></i>
+                            </span>
+                            <span class="font-orbitron text-xs font-bold px-2 py-1 rounded ${isUnlocked ? 'bg-cyber-neonGreen/10 text-cyber-neonGreen' : 'bg-gray-800 text-gray-500'}">
+                                ${isUnlocked ? 'ACCESS GRANTED' : 'LOCKED'}
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="font-orbitron text-lg font-bold text-white">LEVEL ${lvl.id}: ${lvl.title}</h3>
+                            <p class="text-xs text-cyber-neonBlue font-code">${lvl.subtitle}</p>
+                        </div>
+                        <p class="text-xs text-gray-400 font-rajdhani">${lvl.description}</p>
+                    </div>
+                    <button onclick="${isUnlocked ? `startLevel(${lvl.id})` : ''}" ${!isUnlocked ? 'disabled' : ''} class="cyber-btn w-full mt-6 ${isUnlocked ? 'bg-cyber-neonGreen/20 hover:bg-cyber-neonGreen/40 border border-cyber-neonGreen text-cyber-neonGreen' : 'bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed'} font-orbitron font-bold text-xs py-3 rounded">
+                        ${isUnlocked ? 'INITIALIZE DECRYPTION' : 'REQUIRES PREVIOUS LEVEL'}
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function startTimer() {
+            clearInterval(state.timerInterval);
+            state.timerSeconds = 0;
+            state.timerInterval = setInterval(() => {
+                state.timerSeconds++;
+                const mins = String(Math.floor(state.timerSeconds / 60)).padStart(2, '0');
+                const secs = String(state.timerSeconds % 60).padStart(2, '0');
+                document.getElementById('statTimer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function showLevelSelect() {
+            clearInterval(state.timerInterval);
+            document.getElementById('levelSelectScreen').classList.remove('hidden');
+            document.getElementById('gameplayScreen').classList.add('hidden');
+            renderLevelCards();
+            updateStatsUI();
+        }
+
+        function startLevel(lvlId) {
+            playSound('click');
+            state.currentLevel = lvlId;
+            state.currentNode = 1;
+            document.getElementById('levelSelectScreen').classList.add('hidden');
+            document.getElementById('gameplayScreen').classList.remove('hidden');
+            document.getElementById('gameLevelBadge').innerText = `LEVEL ${lvlId}`;
+            
+            startTimer();
+            loadNextQuestion();
+        }
+
+        function loadNextQuestion() {
+            state.currentInput = "";
+            updateInputDisplay();
+            document.getElementById('feedbackBox').innerText = "";
+            document.getElementById('hintBox').classList.add('hidden');
+            document.getElementById('gameProgressText').innerText = `NODE ${state.currentNode} OF ${state.totalNodes}`;
+
+            state.currentProblem = generateProblem(state.currentLevel);
+            document.getElementById('expressionDisplay').innerText = state.currentProblem.expr;
+
+            // Render steps automatically in side panel
+            const stepsList = document.getElementById('stepsList');
+            stepsList.innerHTML = state.currentProblem.steps.map(s => `<div class="p-2 bg-cyber-bg rounded border border-cyber-border">${s}</div>`).join('');
+        }
+
+        function keypadPress(val) {
+            playSound('click');
+            if (val === 'DEL') {
+                state.currentInput = state.currentInput.slice(0, -1);
+            } else if (val === 'CLEAR') {
+                state.currentInput = "";
+            } else if (val === 'MINUS') {
+                if (state.currentInput.startsWith('-')) {
+                    state.currentInput = state.currentInput.substring(1);
+                } else {
+                    state.currentInput = '-' + state.currentInput;
+                }
+            } else {
+                if (state.currentInput.length < 8) {
+                    state.currentInput += val;
+                }
+            }
+            updateInputDisplay();
+        }
+
+        function updateInputDisplay() {
+            const display = document.getElementById('answerDisplay');
+            if (state.currentInput === "") {
+                display.innerHTML = `<span class="animate-pulse">_</span>`;
+            } else {
+                display.innerText = state.currentInput;
+            }
+        }
+
+        // Keyboard listener
+        window.addEventListener('keydown', (e) => {
+            if (document.getElementById('gameplayScreen').classList.contains('hidden')) return;
+            if (e.key >= '0' && e.key <= '9') keypadPress(e.key);
+            else if (e.key === '-') keypadPress('MINUS');
+            else if (e.key === 'Backspace') keypadPress('DEL');
+            else if (e.key === 'Enter') submitAnswer();
+        });
+
+        function submitAnswer() {
+            if (state.currentInput === "" || state.currentInput === "-") return;
+            
+            state.totalAttempts++;
+            const userAns = parseInt(state.currentInput, 10);
+            const feedbackBox = document.getElementById('feedbackBox');
+
+            if (userAns === state.currentProblem.answer) {
+                // Correct
+                playSound('correct');
+                state.streak++;
+                state.totalSolved++;
+                const earnedXP = 20 * state.streak;
+                state.xp += earnedXP;
+                updateStatsUI();
+                saveUserData();
+
+                feedbackBox.className = "h-8 font-orbitron text-sm font-semibold flex items-center justify-center text-cyber-neonGreen glow-text-green";
+                feedbackBox.innerText = `OVERRIDE SUCCESSFUL! +${earnedXP} XP`;
+
+                setTimeout(() => {
+                    if (state.currentNode < state.totalNodes) {
+                        state.currentNode++;
+                        loadNextQuestion();
+                    } else {
+                        // Level Complete
+                        onLevelComplete();
+                    }
+                }, 1200);
+            } else {
+                // Wrong
+                playSound('wrong');
+                state.streak = 0;
+                updateStatsUI();
+                feedbackBox.className = "h-8 font-orbitron text-sm font-semibold flex items-center justify-center text-cyber-neonPink glow-text-pink";
+                feedbackBox.innerText = `SECURITY REJECTED! INCORRECT EVALUATION.`;
+                document.getElementById('hintBox').classList.remove('hidden');
+                document.getElementById('hintBox').innerHTML = `<strong class="text-cyber-neonYellow">BEDMAS Breakdown:</strong><br/>` + state.currentProblem.steps.join('<br/>');
+            }
+        }
+
+        function requestHint() {
+            playSound('click');
+            if (state.xp >= 10) {
+                state.xp -= 10;
+                updateStatsUI();
+                document.getElementById('hintBox').classList.remove('hidden');
+                document.getElementById('hintBox').innerHTML = `<strong class="text-cyber-neonYellow">BEDMAS Step 1 Hint:</strong><br/>` + state.currentProblem.steps[0];
+            } else {
+                alert("Insufficient XP for hint protocol!");
+            }
+        }
+
+        function onLevelComplete() {
+            playSound('unlock');
+            clearInterval(state.timerInterval);
+
+            if (state.currentLevel === state.unlockedLevel && state.unlockedLevel < 5) {
+                state.unlockedLevel++;
+                saveUserData();
+            }
+
+            const mins = String(Math.floor(state.timerSeconds / 60)).padStart(2, '0');
+            const secs = String(state.timerSeconds % 60).padStart(2, '0');
+
+            document.getElementById('modalLevelTitle').innerText = `LEVEL ${state.currentLevel} OVERRIDDEN`;
+            document.getElementById('modalXPGained').innerText = `+${100 * state.currentLevel}`;
+            document.getElementById('modalAccuracy').innerText = `100%`;
+            document.getElementById('modalTime').innerText = `${mins}:${secs}`;
+
+            if (state.currentLevel === 5) {
+                // Show Certificate directly if Master Vault beat
+                showCertificate();
+            } else {
+                document.getElementById('levelCompleteModal').classList.remove('hidden');
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById('levelCompleteModal').classList.add('hidden');
+            if (state.currentLevel < 5) {
+                startLevel(state.currentLevel + 1);
+            } else {
+                showLevelSelect();
+            }
+        }
+
+        function showCertificate() {
+            document.getElementById('levelCompleteModal').classList.add('hidden');
+            document.getElementById('certXP').innerText = `${state.xp} XP`;
+            document.getElementById('certDate').innerText = new Date().toISOString().split('T')[0];
+            document.getElementById('certificateModal').classList.remove('hidden');
+        }
+
+        function hideCertificate() {
+            document.getElementById('certificateModal').classList.add('hidden');
+        }
+
+        /* ==========================================================================
+           SCRATCHPAD CANVAS ENGINE
+           ========================================================================== */
+        let canvas, ctx, isDrawing = false;
+
+        function initScratchpad() {
+            canvas = document.getElementById('scratchCanvas');
+            ctx = canvas.getContext('2d');
+            
+            function resize() {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+            }
+            resize();
+
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('touchstart', (e) => { startDraw(e.touches[0]); e.preventDefault(); });
+            canvas.addEventListener('touchmove', (e) => { draw(e.touches[0]); e.preventDefault(); });
+            canvas.addEventListener('touchend', stopDraw);
+        }
+
+        function startDraw(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function stopDraw() {
+            isDrawing = false;
+        }
+
+        function clearScratchpad() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function toggleScratchpad() {
+            playSound('click');
+            const modal = document.getElementById('scratchpadModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(initScratchpad, 100);
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        /* Initialize Game on Load */
+        window.onload = function() {
+            loadUserData();
+            renderLevelCards();
+        };
+    </script>
+</body>
+</html>
